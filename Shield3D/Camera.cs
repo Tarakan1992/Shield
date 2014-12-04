@@ -63,7 +63,7 @@
 			//Вертикальный вектор камеры
 			Up.X = upX;
 			Up.Y = upY;
-			Up.X = upZ;
+			Up.Z = upZ;
 		}
 
 
@@ -93,12 +93,35 @@
 			Position.Y += speed;
 		}
 
-		public void RotateView(float speed)
+		public void RotateView(float angle, float x, float y, float z)
 		{
-			var vector = View - Position;
+			var newView = new Vector3D();
+			var vView = View - Position;
+			
 
-			View.Z = (float)(Position.Z + Math.Sin(speed) * vector.X + Math.Cos(speed) * vector.Z);
-			View.X = (float)(Position.X + Math.Cos(speed) * vector.X - Math.Sin(speed) * vector.Z);
+			// Рассчитаем 1 раз синус и косинус переданного угла
+			var cosTheta = (float)Math.Cos(angle);
+			var sinTheta = (float)Math.Sin(angle); ;
+
+			// Найдем новую позицию X для вращаемой точки
+			newView.X = (cosTheta + (1 - cosTheta) * x * x) * vView.X;
+			newView.X += ((1 - cosTheta) * x * y - z * sinTheta) * vView.Y;
+			newView.X += ((1 - cosTheta) * x * z + y * sinTheta) * vView.Z;
+
+			// Найдем позицию Y
+			newView.Y = ((1 - cosTheta) * x * y + z * sinTheta) * vView.X;
+			newView.Y += (cosTheta + (1 - cosTheta) * y * y) * vView.Y;
+			newView.Y += ((1 - cosTheta) * y * z - x * sinTheta) * vView.Z;
+
+			// И позицию Z
+			newView.Z = ((1 - cosTheta) * x * z - y * sinTheta) * vView.X;
+			newView.Z += ((1 - cosTheta) * y * z + x * sinTheta) * vView.Y;
+			newView.Z += (cosTheta + (1 - cosTheta) * z * z) * vView.Z;
+
+			// Теперь просто добавим новый вектор вращения к нашей позиции, чтобы
+			// установить новый взгляд камеры.
+
+			View = Position + newView;
 		}
 
 		public void RotatePosition(float angle, float x, float y, float z)
@@ -132,13 +155,15 @@
 		{
 			var vector = View - Position;
 
-			vector.Y = 0.0f; // Это запрещает камере подниматься вверх
+			//vector.Y = 0.0f; // Это запрещает камере подниматься вверх
 			vector = VectorHelper.Normalize(vector);
 
 			Position.X += vector.X * speed;
 			Position.Z += vector.Z * speed;
+			Position.Y += vector.Y * speed;
 			View.X += vector.X * speed;
 			View.Z += vector.Z * speed;
+			View.Y += vector.Y * speed;
 		}
 
 		public void Update()
@@ -150,6 +175,5 @@
 		}
 
 		#endregion
-
 	}
 }
