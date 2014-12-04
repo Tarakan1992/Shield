@@ -450,7 +450,7 @@ namespace Shield3D
             Gl.glPushMatrix();
 
              //масштабирование по умолчанию
-            Gl.glScalef(0.05f, 0.05f, 0.05f);
+            Gl.glScalef(0.005f, 0.005f, 0.005f);
             Gl.glTranslated(modelList[0].coord.X, modelList[0].coord.Y, modelList[0].coord.Z);
             modelList[0].coord.Z += (float) 0.3;
 
