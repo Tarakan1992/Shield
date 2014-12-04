@@ -81,7 +81,7 @@ namespace Shield3D
 			Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
 			Gl.glLoadIdentity();									// Reset The matrix
 
-			Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_POSITION, LightManager.Instance.Position);
+			//Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_POSITION, LightManager.Instance.Position);
 
 			cameraManager.Look();
 
