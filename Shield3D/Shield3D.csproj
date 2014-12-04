@@ -111,6 +111,8 @@
     <Compile Include="TextureName.cs" />
     <Compile Include="Vector3D.cs" />
     <Compile Include="VectorHelper.cs" />
+    <Compile Include="ImportModel.cs" />
+    <Compile Include="ModelManager.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

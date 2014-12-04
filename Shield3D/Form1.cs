@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using Tao.OpenGl;
 using Tao.FreeGlut;
+using Tao.Platform.Windows;
+using Tao.DevIl;
 
 namespace Shield3D
 {
@@ -13,11 +15,12 @@ namespace Shield3D
 	{
 		private CameraManager cameraManager;
 
+        private ModelManager modelManager;
+
 		public Form1()
 		{
 			InitializeComponent();
 			AnT.InitializeContexts();
-			Cursor.Hide();
 		}
 
 		private void Form1_Load(object sender, EventArgs e)
@@ -46,14 +49,19 @@ namespace Shield3D
 			Gl.glMatrixMode(Gl.GL_MODELVIEW);
 			Gl.glLoadIdentity();
 
-			TextureManager.Instance.LoadTexture(@"D:\MG\Shield\Shield3D\Texture\ground.jpg", TextureName.Ground);
-			TextureManager.Instance.LoadTexture(@"D:\MG\Shield\Shield3D\Texture\Back.bmp", TextureName.Back);
-			TextureManager.Instance.LoadTexture(@"D:\MG\Shield\Shield3D\Texture\Front.bmp", TextureName.Front);
-			TextureManager.Instance.LoadTexture(@"D:\MG\Shield\Shield3D\Texture\Bottom.bmp", TextureName.Bottom);
-			TextureManager.Instance.LoadTexture(@"D:\MG\Shield\Shield3D\Texture\Left.bmp", TextureName.Left);
-			TextureManager.Instance.LoadTexture(@"D:\MG\Shield\Shield3D\Texture\Right.bmp", TextureName.Rigth);
-			TextureManager.Instance.LoadTexture(@"D:\MG\Shield\Shield3D\Texture\Top.bmp", TextureName.Top);
-	
+
+            var path = AppDomain.CurrentDomain.BaseDirectory + @"..\..\";
+
+            TextureManager.Instance.LoadTexture(path + @"\Texture\ground.jpg", TextureName.Ground);
+            TextureManager.Instance.LoadTexture(path + @"\Texture\Back.bmp", TextureName.Back);
+            TextureManager.Instance.LoadTexture(path + @"\Texture\Front.bmp", TextureName.Front);
+            TextureManager.Instance.LoadTexture(path + @"\Texture\Bottom.bmp", TextureName.Bottom);
+            TextureManager.Instance.LoadTexture(path + @"\Texture\Left.bmp", TextureName.Left);
+            TextureManager.Instance.LoadTexture(path + @"\Texture\Right.bmp", TextureName.Rigth);
+            TextureManager.Instance.LoadTexture(path + @"\Texture\Top.bmp", TextureName.Top);
+            
+            modelManager = new ModelManager();
+            modelManager.LoadModel();
 
 			cameraManager = new CameraManager(this, 0, 1.5f, 6, 0, 1.5f, 5, 0, 1, 0);
 
@@ -64,6 +72,7 @@ namespace Shield3D
 		private void RenderTimer_Tick(object sender, EventArgs e)
 		{
 			Draw();
+
 			cameraManager.Update();
 		}
 
@@ -78,16 +87,8 @@ namespace Shield3D
 
 			Painter.CreateSkyBox(0, 0, 0, 400, 200, 400);
 
-			//// Draw a grid so we can get a good idea of movement around the world
-			//Draw3DSGrid();
-
-			//// Draw the pyramids that spiral in to the center
-			//DrawSpiralTowers();
-
 			Gl.glEnable(Gl.GL_TEXTURE_2D);
 
-			// Биндим текстуру. То есть указываем OpenGL, какую именно текстуру мы хотим 
-			// использовать:
 			Gl.glBindTexture(Gl.GL_TEXTURE_2D, TextureManager.Instance.TextureImages[TextureName.Ground].Id);
 
 			Gl.glBegin(Gl.GL_QUADS);      // Начинаем рисовать квадрат
@@ -123,7 +124,14 @@ namespace Shield3D
 			Gl.glTexCoord2f(16f, 0); Gl.glVertex3f(16f, 0, 16f);  // Верх право
 			Gl.glTexCoord2f(0, 0); Gl.glVertex3f(-16f, 0, 16f); // Низ право
 
+            
 			Gl.glEnd();    // Закончили рисовать
+            Gl.glDisable(Gl.GL_TEXTURE_2D);
+
+            if (modelManager.isLoad)
+            {
+                modelManager.DrawModels();
+            }
 
 			// обновляем элемент AnT 
 			AnT.Invalidate();

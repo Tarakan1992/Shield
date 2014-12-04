@@ -22,6 +22,8 @@
 			z = z - length / 2;
 
 			// забиндим заднюю текстуру на заднюю сторону
+            Gl.glEnable(Gl.GL_TEXTURE_2D);
+
 			Gl.glBindTexture(Gl.GL_TEXTURE_2D, TextureManager.Instance.TextureImages[TextureName.Back].Id);
 			Gl.glBegin(Gl.GL_QUADS);
 
@@ -101,6 +103,8 @@
 			Gl.glTexCoord2f(0.0f, 1.0f); Gl.glVertex3f(x + width, y + height, z);
 
 			Gl.glEnd();
+
+            Gl.glDisable(Gl.GL_TEXTURE_2D);
 		}
 
 		public static void Draw3DSGrid()
