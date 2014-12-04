@@ -15,9 +15,6 @@ namespace Shield3D
         // при инициализации мы должны указать количество вершин (vertex) и полигонов (face) которые описывают геометри под-объекта
         public LIMB(int a, int b)
         {
-            //if (temp[0] == 0)
-            //    temp[0] = 1;
-
             // записываем количество вершин и полигонов
             VandF[0] = a;
             VandF[1] = b;
@@ -325,12 +322,14 @@ namespace Shield3D
         {
             modelList = new List<Model>();
         }
+        
         public void LoadModel()
         {
             var loader = new ImportModel();
+            var path = AppDomain.CurrentDomain.BaseDirectory + @"..\..\Models";
 
-            var fileURLs = new List<string>(){ @"C:\Users\Alex\Documents\Visual Studio 2013\Projects\source_urok_13_esate.ru\body.ase", 
-                                                  @"C:\Users\Alex\Documents\Visual Studio 2013\Projects\source_urok_13_esate.ru\head.ase" };
+            var fileURLs = new List<string>(){ path + @"\body.ase", 
+                                                 path + @"\head.ase" };
 
             ModelTransferBuffer result;
             for (int i = 0; i < fileURLs.Count; i++)
@@ -431,61 +430,30 @@ namespace Shield3D
             Gl.glDisable(Gl.GL_NORMALIZE);
 
             // открлючаем текстурирование
-            Gl.glDisable(Gl.GL_TEXTURE_2D);
-       //     }          
+            Gl.glDisable(Gl.GL_TEXTURE_2D);       
 
             // возвращаем сохраненную ранее матрицу
             Gl.glPopMatrix();        
     }
         
         int angle = 0;
-
         public void DrawModels()
         {
-            //foreach (var model in modelList)
-            //{
-            //    DrawModel(model.ListID);
-            //}
-             //сохраняем матрицу
+            //сохраняем матрицу
             Gl.glPushMatrix();
 
              //масштабирование по умолчанию
-            Gl.glScalef(0.005f, 0.005f, 0.005f);
+            Gl.glScalef(0.01f, 0.01f, 0.01f);
             Gl.glTranslated(modelList[0].coord.X, modelList[0].coord.Y, modelList[0].coord.Z);
             modelList[0].coord.Z += (float) 0.3;
 
-            DrawModel(modelList[0].ListID);
+            Gl.glCallList(modelList[0].ListID);
 
            // Gl.glTranslated(0, 0, -5);
             Gl.glRotated(angle++, 0, 0, 1);
-            //Gl.glScaled(zoom, zoom, zoom);
 
-            DrawModel(modelList[1].ListID);
+            Gl.glCallList(modelList[1].ListID);
             Gl.glPopMatrix();
-        }
-
-        // функция отрисовки 3D модели
-        public void DrawModel(int listID)
-        {
-            // если модель не загружена - возврат из функции
-            if (!isLoad)
-                return;
-
-            // сохраняем матрицу
-            //Gl.glPushMatrix();
-
-            // масштабирование по умолчанию
-            //Gl.glScalef(0.05f, 0.05f, 0.05f);
-
-            // вызов дисплейного списка
-
-            //CreateList();
-
-            Gl.glCallList(listID);
-
-            // возврат матрицы
-            //Gl.glPopMatrix();
-        }
-            
+        }           
     }
 }
