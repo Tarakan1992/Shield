@@ -50,6 +50,8 @@ namespace Shield3D
 			Gl.glLoadIdentity();
 
 
+			Gl.glEnable(Gl.GL_DEPTH_TEST);
+
             var path = AppDomain.CurrentDomain.BaseDirectory + @"..\..\";
 
             TextureManager.Instance.LoadTexture(path + @"\Texture\ground.jpg", TextureName.Ground);
