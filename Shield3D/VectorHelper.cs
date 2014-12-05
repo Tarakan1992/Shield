@@ -3,6 +3,7 @@
 namespace Shield3D
 {
 	using System.Collections.Generic;
+	using System.Runtime.CompilerServices;
 
 	public static class VectorHelper
 	{
@@ -17,22 +18,16 @@ namespace Shield3D
 					(vector.Z * vector.Z));
 		}
 
-		public static Vector3D Normalize(Vector3D vector)
+		public static Vector3D Normal(Vector3D vector)
 		{
-			// Вы спросите, для чего эта ф-я? Мы должны убедиться, что наш вектор нормализирован.
-			// Вектор нормализирован - значит, его длинна равна 1. Например,
-			// вектор (2,0,0) после нормализации будет (1,0,0).
+			var magnitude = Magnitude(vector);
 
-			// Вычислим величину нормали
-			float magnitude = Magnitude(vector);
+			if (magnitude == 0.0f)
+			{
+				magnitude = 1.0f;
+			}
 
-			// Теперь у нас есть величина, и мы можем разделить наш вектор на его величину.
-			// Это сделает длинну вектора равной единице, так с ним будет легче работать.
-			vector.X = vector.X / magnitude;
-			vector.Y = vector.Y / magnitude;
-			vector.Z = vector.Z / magnitude;
-
-			return vector;
+			return vector / magnitude;
 		}
 
 		public static Vector3D Cross(Vector3D vector1, Vector3D vector2)
@@ -45,16 +40,67 @@ namespace Shield3D
 			};
 		}
 
-		public static Vector3D Normal(List<Vector3D> vTriangle)
+		public static Vector3D Cross3(Vector3D vector1, Vector3D vector2, Vector3D vector3)
 		{
-			Vector3D vVector1 = vTriangle[2] - vTriangle[0];
-			Vector3D vVector2 = vTriangle[1] - vTriangle[0];
- 
-			// В функцию передаются три вектора - треугольник. Мы получаем vVector1 и vVector2 - его
-			// стороны. Теперь, имея 2 стороны треугольника, мы можем получить из них cross().
-			// (*ЗАМЕЧАНИЕ*) Важно: первым вектором мы передаём низ треугольника, а вторым - левую
-			// сторону. Если мы поменяем их местами, нормаль будет повернута в противоположную
-			// сторону. В нашем случае мы приняли решение всегда работать против часовой.
+			return new Vector3D
+			{
+				X = vector1.Y * vector2.Z * vector3.W +
+				   vector1.Z * vector2.W * vector3.Y +
+				   vector1.W * vector2.Y * vector3.Z -
+				   vector1.Y * vector2.W * vector3.Z -
+				   vector1.Z * vector2.Y * vector3.W -
+				   vector1.W * vector2.Z * vector3.Y,
+
+				Y = vector1.X * vector2.W * vector3.Z +
+				   vector1.Z * vector2.X * vector3.W +
+				   vector1.W * vector2.Z * vector3.X -
+				   vector1.X * vector2.Z * vector3.W -
+				   vector1.Z * vector2.W * vector3.X -
+				   vector1.W * vector2.X * vector3.Z,
+
+				Z = vector1.X * vector2.Y * vector3.W +
+				   vector1.Y * vector2.W * vector3.X +
+				   vector1.W * vector2.X * vector3.Y -
+				   vector1.X * vector2.W * vector3.Y -
+				   vector1.Y * vector2.X * vector3.W -
+				   vector1.W * vector2.Y * vector3.X,
+
+				W = vector1.X * vector2.Z * vector3.Y +
+				   vector1.Y * vector2.X * vector3.Z +
+				   vector1.Z * vector2.Y * vector3.X -
+				   vector1.X * vector2.Y * vector3.Z -
+				   vector1.Y * vector2.Z * vector3.X -
+				   vector1.Z * vector2.X * vector3.Y,
+			};
+		}
+
+		public static float DotProduct3(Vector3D vector1, Vector3D vector2)
+		{
+			return vector1.X*vector2.X + vector1.Y*vector2.Y + vector1.Z*vector2.Z;
+		}
+
+		public static float DotProduct4(Vector3D vector1, Vector3D vector2)
+		{
+			return vector1.X * vector2.X + vector1.Y * vector2.Y + vector1.Z * vector2.Z + vector1.W * vector2.W;
+		}
+
+		public static Vector3D Normalize(List<Vector3D> vTriangle)
+		{
+			var vVector1 = new Vector3D
+			{
+				X = vTriangle[0].X - vTriangle[1].X,
+				Y = vTriangle[0].Y - vTriangle[1].Y,
+				Z = vTriangle[0].Z - vTriangle[1].Z,
+				W = vTriangle[0].W - vTriangle[1].W
+			};
+
+			var vVector2 = new Vector3D
+			{
+				X = vTriangle[1].X - vTriangle[2].X,
+				Y = vTriangle[1].Y - vTriangle[2].Y,
+				Z = vTriangle[1].Z - vTriangle[2].Z,
+				W = vTriangle[1].W - vTriangle[2].W
+			};
  
 			Vector3D vNormal = Cross(vVector1, vVector2);
  
@@ -72,6 +118,11 @@ namespace Shield3D
 			// (конечно, кроме (0,0,0)), если мы её нормализуем, она всегда будет равна 1.
  
 			return vNormal;
+		}
+
+		public static bool TEqual(float a, float b, float t)
+		{
+			return ((a > b - t) && (a < b + t));
 		}
 	}
 }

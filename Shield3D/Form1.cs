@@ -15,7 +15,9 @@ namespace Shield3D
 	{
 		private CameraManager cameraManager;
 
-        private ModelManager modelManager;
+		private ModelManager modelManager;
+
+		private int _tickCount = 0;
 
 		public Form1()
 		{
@@ -27,7 +29,7 @@ namespace Shield3D
 		{
 			// инициализация Glut 
 			Glut.glutInit();
-			Glut.glutInitDisplayMode(Glut.GLUT_RGB | Glut.GLUT_DOUBLE| Glut.GLUT_DEPTH);
+			Glut.glutInitDisplayMode(Glut.GLUT_RGB | Glut.GLUT_DOUBLE | Glut.GLUT_DEPTH);
 
 			// очитка окна 
 			Gl.glClearColor(0, 0, 0, 1);
@@ -52,20 +54,23 @@ namespace Shield3D
 
 			Gl.glEnable(Gl.GL_DEPTH_TEST);
 
-            var path = AppDomain.CurrentDomain.BaseDirectory + @"..\..\";
+			var path = AppDomain.CurrentDomain.BaseDirectory + @"..\..\";
 
-            TextureManager.Instance.LoadTexture(path + @"\Texture\ground.jpg", TextureName.Ground);
-            TextureManager.Instance.LoadTexture(path + @"\Texture\Back.bmp", TextureName.Back);
-            TextureManager.Instance.LoadTexture(path + @"\Texture\Front.bmp", TextureName.Front);
-            TextureManager.Instance.LoadTexture(path + @"\Texture\Bottom.bmp", TextureName.Bottom);
-            TextureManager.Instance.LoadTexture(path + @"\Texture\Left.bmp", TextureName.Left);
-            TextureManager.Instance.LoadTexture(path + @"\Texture\Right.bmp", TextureName.Rigth);
-            TextureManager.Instance.LoadTexture(path + @"\Texture\Top.bmp", TextureName.Top);
-            
-            modelManager = new ModelManager();
-            modelManager.LoadModel();
+			TextureManager.Instance.LoadTexture(path + @"\Texture\ground.jpg", TextureName.Ground);
+			TextureManager.Instance.LoadTexture(path + @"\Texture\Back.bmp", TextureName.Back);
+			TextureManager.Instance.LoadTexture(path + @"\Texture\Front.bmp", TextureName.Front);
+			TextureManager.Instance.LoadTexture(path + @"\Texture\Bottom.bmp", TextureName.Bottom);
+			TextureManager.Instance.LoadTexture(path + @"\Texture\Left.bmp", TextureName.Left);
+			TextureManager.Instance.LoadTexture(path + @"\Texture\Right.bmp", TextureName.Rigth);
+			TextureManager.Instance.LoadTexture(path + @"\Texture\Top.bmp", TextureName.Top);
+
+			modelManager = new ModelManager();
+			modelManager.LoadModel();
+			ParticleManager.Instance.Initialization();
 
 			cameraManager = new CameraManager(this, 0, 1.5f, 6, 0, 1.5f, 5, 0, 1, 0);
+
+
 
 			// активация таймера 
 			RenderTimer.Start();
@@ -74,8 +79,8 @@ namespace Shield3D
 		private void RenderTimer_Tick(object sender, EventArgs e)
 		{
 			Draw();
-
 			cameraManager.Update();
+			_tickCount++;
 		}
 
 		private void Draw()
@@ -83,9 +88,12 @@ namespace Shield3D
 			Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
 			Gl.glLoadIdentity();									// Reset The matrix
 
-			//Gl.glLightfv(Gl.GL_LIGHT0, Gl.GL_POSITION, LightManager.Instance.Position);
-
 			cameraManager.Look();
+
+			Painter.DrawParticles(_tickCount);
+
+			//Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
+			
 
 			Painter.CreateSkyBox(0, 0, 0, 400, 200, 400);
 
@@ -126,21 +134,22 @@ namespace Shield3D
 			Gl.glTexCoord2f(16f, 0); Gl.glVertex3f(16f, 0, 16f);  // Верх право
 			Gl.glTexCoord2f(0, 0); Gl.glVertex3f(-16f, 0, 16f); // Низ право
 
-            
+
 			Gl.glEnd();    // Закончили рисовать
-            Gl.glDisable(Gl.GL_TEXTURE_2D);
+			Gl.glDisable(Gl.GL_TEXTURE_2D);
 
-            if (modelManager.isLoad)
-            {
-                modelManager.DrawModels();
-            }
+			if (modelManager.isLoad)
+			{
+				modelManager.DrawModels();
+			}
 
+			
 			// обновляем элемент AnT 
 			AnT.Invalidate();
 		}
 
 		public int AnTWidth
-		{ 
+		{
 			get { return AnT.Width; }
 		}
 

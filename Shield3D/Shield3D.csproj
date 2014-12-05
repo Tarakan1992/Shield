@@ -104,6 +104,8 @@
     </Compile>
     <Compile Include="LightManager.cs" />
     <Compile Include="Painter.cs" />
+    <Compile Include="Particle.cs" />
+    <Compile Include="ParticleManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Texture.cs" />

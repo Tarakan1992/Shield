@@ -202,5 +202,29 @@
 			Gl.glColor3ub(0, 0, 255); Gl.glVertex3f(x - width, y - height, z - width);    // Back left point
 			Gl.glEnd();
 		}
+
+		public static void DrawParticles(int tickCount)
+		{
+			Gl.glEnable(Gl.GL_BLEND);
+			Gl.glBlendFunc(Gl.GL_ONE, Gl.GL_ONE);
+
+			if (ParticleManager.Instance.BeginTime == -1)
+			{
+				ParticleManager.Instance.BeginTime = tickCount*0.001f;
+				ParticleManager.Instance.EndTime = tickCount*0.001f;
+			}
+
+			ParticleManager.Instance.BeginTime = tickCount*0.001f;
+			var dt = ParticleManager.Instance.BeginTime - ParticleManager.Instance.EndTime;
+
+			foreach (var particle in ParticleManager.Instance.Particles)
+			{
+				particle.Render();
+				particle.Process(dt);
+			}
+
+			Gl.glDisable(Gl.GL_BLEND);
+
+		}
 	}
 }
