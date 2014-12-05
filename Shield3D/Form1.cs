@@ -78,22 +78,73 @@ namespace Shield3D
 
 		private void RenderTimer_Tick(object sender, EventArgs e)
 		{
-			Draw();
+			Render();
 			cameraManager.Update();
 			_tickCount++;
 		}
 
+		private void Render()
+		{
+			Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT | Gl.GL_STENCIL_BUFFER_BIT);
+			Gl.glLoadIdentity();
+
+			Gl.glColorMask(Gl.GL_FALSE, Gl.GL_FALSE, Gl.GL_FALSE, Gl.GL_FALSE);
+
+			Gl.glEnable(Gl.GL_CULL_FACE);
+			Gl.glEnable(Gl.GL_STENCIL_TEST);
+			Gl.glDepthMask(Gl.GL_FALSE);
+			Gl.glStencilFunc(Gl.GL_ALWAYS, 0, 0);
+
+			// Ключевой момент. Мы рендерим обьемную тени и увеличиваем "трафарет" каждый раз,
+			// когда передняя поверхность окажется пересечена. Обьёмная тень - это силуэт обьекта,
+			// основанный на позиции источника света и значении Extend.
+			Gl.glStencilOp(Gl.GL_KEEP, Gl.GL_KEEP, Gl.GL_INCR);
+			Gl.glCullFace(Gl.GL_BACK);
+			DrawSilhouette(0.5f);
+
+			// Теперь рендерим обьемную тень ещё раз, и на этот раз уменьшаем "трафарет" везде,
+			// где он не в отрисовываемой зоне. Другими словами - везде, где он вне затенённой области.
+			Gl.glStencilOp(Gl.GL_KEEP, Gl.GL_KEEP, Gl.GL_DECR);
+			Gl.glCullFace(Gl.GL_FRONT);
+			DrawSilhouette(0.5f);
+
+			// Теперь сбрасываем всё в значения по умолчанию.
+			Gl.glDepthMask(Gl.GL_TRUE);
+			Gl.glDepthFunc(Gl.GL_LEQUAL);
+			Gl.glColorMask(Gl.GL_TRUE, Gl.GL_TRUE, Gl.GL_TRUE, Gl.GL_TRUE);
+			Gl.glStencilOp(Gl.GL_KEEP, Gl.GL_KEEP, Gl.GL_KEEP);
+			Gl.glCullFace(Gl.GL_BACK);
+			Gl.glDisable(Gl.GL_CULL_FACE);
+
+			// Рендерим тёмные участки сцены. Другими словами, рисуем все затенённые зоны с тёмным оттенком.
+			Gl.glDisable(Gl.GL_LIGHT0);
+			Gl.glStencilFunc(Gl.GL_EQUAL, 1, 1);
+			Render();
+
+
+			// Наконец рисуем светлые участки сцены. В отличие от предыдущего раза, теперь мы
+			// рисуем участки, не попадающие в затенённую область.
+			Gl.glEnable(Gl.GL_LIGHT0);
+			Gl.glStencilFunc(Gl.GL_EQUAL, 0, 1);
+			Render();
+
+			// Ну и наконец исправим тест глубины и выключим stensil-test.
+			Gl.glDepthFunc(Gl.GL_LESS);
+			Gl.glDisable(Gl.GL_STENCIL_TEST);
+
+			Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE);
+			DrawSilhouette(0.5f);
+			Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL);
+		}
+
 		private void Draw()
 		{
-			Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
+			Gl.glMatrixMode(Gl.GL_MODELVIEW);
 			Gl.glLoadIdentity();									// Reset The matrix
 
 			cameraManager.Look();
-
+			Gl.glEnable(Gl.GL_LIGHTING);
 			Painter.DrawParticles(_tickCount);
-
-			//Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);	// Clear The Screen And The Depth Buffer
-			
 
 			Painter.CreateSkyBox(0, 0, 0, 400, 200, 400);
 
@@ -126,7 +177,7 @@ namespace Shield3D
 				new Vector3D {X = 16f, Y = 0f, Z = 16f}
 			};
 
-			var normal = VectorHelper.Normal(vectorList);
+			var normal = VectorHelper.Normalize(vectorList);
 
 			Gl.glNormal3f(normal.X, normal.Y, normal.Z);
 			Gl.glTexCoord2f(0, 16f); Gl.glVertex3f(-16f, 0, -16f);    // Низ лево
@@ -146,6 +197,11 @@ namespace Shield3D
 			
 			// обновляем элемент AnT 
 			AnT.Invalidate();
+		}
+
+		private void DrawSilhouette(float ExtendAmount)
+		{
+			
 		}
 
 		public int AnTWidth

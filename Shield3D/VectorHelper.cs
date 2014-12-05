@@ -3,7 +3,6 @@
 namespace Shield3D
 {
 	using System.Collections.Generic;
-	using System.Runtime.CompilerServices;
 
 	public static class VectorHelper
 	{
@@ -109,7 +108,7 @@ namespace Shield3D
 			// называется нормализация. Чтобы сделать это, мы делим нормаль на её длинну.
 			// Ну а как найти длинну? Мы используем эту формулу: magnitude = sqrt(x^2 + y^2 + z^2)
  
-			vNormal = Normalize(vNormal);
+			vNormal = Normal(vNormal);
  
 			// Теперь вернём "нормализованную нормаль" =)
 			// (*ПРИМЕЧАНИЕ*) если вы хотите увидеть, как работает нормализация, закомментируйте
@@ -123,6 +122,22 @@ namespace Shield3D
 		public static bool TEqual(float a, float b, float t)
 		{
 			return ((a > b - t) && (a < b + t));
+		}
+
+		public static Vector3D ExtendVertexPos(Vector3D currentVertex, Vector3D lightPos, float Extend)
+		{
+			Vector3D lightDir;  // Направление света
+			Vector3D newPos;    // Новая расширенная позиция вершины для обьемных теней
+
+			// Получаем направление света из координат вершины и источника света
+			lightDir = currentVertex - lightPos;
+
+			// Теперь, зная направление света, прибавляем его к позиции света для получения
+			// новой позиции. Умножаем его на переданное значение, чтобы придать обьему некоторую
+			// дистанцию, иначе будет выглядеть не слишком реалистично.
+			newPos = lightPos + lightDir * Extend;
+
+			return newPos;
 		}
 	}
 }
